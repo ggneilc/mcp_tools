@@ -20,8 +20,8 @@ import markdown2
 mcp = FastMCP("Obsidian Note Indexer", version="0.1.0")
 
 # — Load FAISS + metadata —
-idx    = faiss.read_index(r"C:\Users\nchur\Documents\machine-learning\ollama-obsidian\rag\docs_index.faiss")
-with open(r"C:\Users\nchur\Documents\machine-learning\ollama-obsidian\rag\docs_metadata.pkl", "rb") as f:
+idx    = faiss.read_index(r"/home/neilc/Projects/machine-learning/mcp_tools/rag/docs_index.faiss")
+with open(r"/home/neilc/Projects/machine-learning/mcp_tools/rag/docs_metadata.pkl", "rb") as f:
     chunks = pickle.load(f)
 
 # — Embedder reused for queries —
@@ -33,48 +33,16 @@ def retrieve(query: str, k: int = 5):
     _, ids = idx.search(q_emb, k)
     return [chunks[i] for i in ids[0]]
 
-# — MCP Tools and Prompts —
+# — MCP Tools —
 
-@mcp.tool(title="Create Blog Content")
-def create_blog_content(topic: List[str]) -> str:
-    """Create a blog post on a given topic from an obsidian note."""
-    context = get_context(topic)
-    # Here you would typically call a model to generate the blog content
-    return f"Blog post for {topic}:\n\n{context}"
-
-@mcp.tool(title="Summarize Information")
-async def summarize_information(topics: List[str], ctx: Context) -> str:
-    """Summarize information based on the retrieved content."""
-    try:
-        # Get initial context on the topics
-        context = get_context(topics)
-        # Create a simple prompt for additional topics
-        prompt = f"Based on this context about {topics}, suggest 2-3 related topics (comma-separated):\n\n{context}..."
-        # Sample to get additional topics with proper message structure
-        result = await ctx.session.create_message(
-            messages=[
-                SamplingMessage(
-                    role="user",
-                    content=TextContent(type="text", text=prompt)
-                )
-            ],
-            max_tokens=100,
-        )
-        content_text = result.content.text if hasattr(result.content, 'text') else str(result.content)
-        new_topics = [t.strip() for t in content_text.split(",") if t.strip()]
-        additional_context = get_context(new_topics)
-        context += f"\n\n## Additional Context:\n{additional_context}"
-        return f"Context for {topics+new_topics}:\n\n{context}\n\n Summarized Answer:"
-    except Exception as e:
-        # Fallback to just the initial context if sampling fails
-        context = get_context(topics)
-        return f"Context for {topics}:\n\n{context}\n\n(Note: Could not expand topics due to: {str(e)})"
-
-# - Helper tools/functions -
 @mcp.tool(title="Find Relevant Documents")
 def get_context(topics: List[str]) -> str:
-    """Utilize the vector database to retrieve relevant chunks to answer a query."""
-    full_context = f"CONTEXT FOR TOPIC(s): {topics}"
+    """
+    Utilize the vector database to retrieve relevant chunks to answer a query.
+    @params : topics - list of strings to query
+    @return : strings of context for each query
+    """
+    full_context = f"CONTEXT FOR TOPIC(s): {topics}\n\n"
     for t in topics:
         hits = retrieve(t, k=5)
         # Merge top‑k chunks into context
@@ -83,14 +51,7 @@ def get_context(topics: List[str]) -> str:
 
     return full_context
 
-@mcp.tool(title="Markdown to HTML")
-def markdown_to_html(markdown_input: TextContent ) -> str:
-    """Convert the response content of a file from Markdown to HTML."""
-    html_content = markdown2.markdown(markdown_input.content.text)
-    # Ensure the HTML is well-formed
-    html_content = html_content.replace("\n", "<br>").replace('"', '\\"')
-    html_content = f"<html><body>{html_content}</body></html>"
-    return html_content
+# — MCP Prompts —
 
 @mcp.prompt(title="Knowledge Base Prompt")
 def knowledge_base_prompt(prompt: str) -> str:
@@ -98,9 +59,10 @@ def knowledge_base_prompt(prompt: str) -> str:
     system_prompt = f" \
         You are in charge of all the documents in an Obsidian vault, which is a personal knowledge management system. \
         You have access to a vector database that contains embeddings of all the documents. \
+        Access the database with the tool `get_context` with the parameter as the topic to query. \
         Only utilize the information in the Obsidian vault to answer the question. \
         Respond in a concise manner, using the information provided in the context. \
-        As you receive more context, update your queries and use check_database again until you have a complete answer. \
+        As you receive more context, update your queries and use get_context again until you have a complete answer. \
         Topic: {prompt}"
     return system_prompt
 
@@ -120,3 +82,16 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# Sampling Structure
+
+#        result = await ctx.session.create_message(
+#            messages=[
+#                SamplingMessage(
+#                    role="user",
+#                    content=TextContent(type="text", text=prompt)
+#                )
+#            ],
+#            max_tokens=100,
+ 

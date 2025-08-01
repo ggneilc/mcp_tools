@@ -3,8 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="blog/static/styles.css">
     <title>Feed the Mind</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ['$', '$'],        // enable single-dollar
+            ['\\(', '\\)']     // keep \(…\) as well
+          ],
+          // (optional) prevent conflict with $$$ display math:
+          displayMath: [['$$','$$']]
+        }
+      };
+    </script>
+     <script
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+      id="MathJax-script"
+      async>
+    </script>
 </head>
 <body style="height: 100vh; ">
 
@@ -18,7 +35,7 @@
     {% block header %}
     {% endblock %}
 
-    <main style="text-align: center; padding: 20px; height: calc(100vh - 60px); overflow-y: auto;">
+    <main style="padding: 20px; height: calc(100vh - 60px); overflow-y: auto;">
         {% block content %}
         <!-- Content will be injected here -->
         {% endblock %}

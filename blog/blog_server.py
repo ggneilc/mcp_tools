@@ -1,10 +1,13 @@
-# app.py
 from flask import Flask, request, jsonify, abort, render_template
 from flask_sqlalchemy import SQLAlchemy
+import os
 
-app = Flask(__name__)
-# Use a local SQLite database file
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+app = Flask(__name__, instance_relative_config=True)
+
+# ensure instance folder is created
+os.makedirs(app.instance_path, exist_ok=True)
+db_path = os.path.join(app.instance_path, 'blog.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
