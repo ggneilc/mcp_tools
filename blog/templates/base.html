@@ -3,43 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="blog/static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <title>Feed the Mind</title>
-    <script>
-      window.MathJax = {
-        tex: {
-          inlineMath: [
-            ['$', '$'],        // enable single-dollar
-            ['\\(', '\\)']     // keep \(…\) as well
-          ],
-          // (optional) prevent conflict with $$$ display math:
-          displayMath: [['$$','$$']]
-        }
-      };
-    </script>
-     <script
+    <script src="../static/js/math_formatting.js"></script>
+    <script
       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
       id="MathJax-script"
       async>
     </script>
 </head>
-<body style="height: 100vh; ">
+<body style="height: 100%; overflow-y: auto;">
 
-    <nav style="background-color: #f8f9fa; padding: 10px; display: flex;">
-        <ul style="list-style-type: none; margin: 0; padding: 0; display: flex;">
-            <li style="margin-right: 20px;"><a href="/">Home</a></li>
-            <li style="margin-right: 20px;"><a href="/contact">Contact</a></li>
+    <div>
+      <button id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <!-- simple hamburger -->
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      </button>
+      <nav id="nav-panel" aria-label="Main navigation">
+        <button id="nav-close" aria-label="Close navigation">&times;</button>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="#posts">Posts</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
-    </nav>
+      </nav>
+    </div>
 
     {% block header %}
     {% endblock %}
 
-    <main style="padding: 20px; height: calc(100vh - 60px); overflow-y: auto;">
+    <main>
         {% block content %}
         <!-- Content will be injected here -->
         {% endblock %}
     </main>
-    
+
+    <script src="../static/js/burger.js"></script>
 </body>
 </html>

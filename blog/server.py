@@ -34,7 +34,7 @@ with app.app_context():
 # --- Routes ---
 @app.route('/')
 def home():
-    posts = [p.to_dict() for p in Post.query.all()]
+    posts = [p.to_dict() for p in Post.query.order_by(Post.id.desc()).limit(5).all()]
     return render_template('index.html', posts=posts)
 
 @app.route("/posts", methods=["GET"])
@@ -46,6 +46,34 @@ def list_posts():
 def get_post(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('post.html', post=post)
+
+
+@app.route("/posts/<int:post_id>", methods=["PUT"])
+def update_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    data = request.get_json() or {}
+
+    title = data.get("title")
+    content = data.get("content")
+    tags = data.get("tags")
+
+    # If nothing to update, return 400
+    if title is None and content is None and tags is None:
+        abort(400, "At least one of title, content, or tags must be provided.")
+
+    if title is not None:
+        post.title = title
+    if content is not None:
+        post.content = content
+    if tags is not None:
+        # Normalize tags: accept list/tuple or comma string
+        if isinstance(tags, (list, tuple)):
+            post.tags = ",".join(tags)
+        else:
+            post.tags = str(tags)
+
+    db.session.commit()
+    return jsonify(post.to_dict()), 200
 
 @app.route("/posts/<int:post_id>", methods=["DELETE"])
 def delete_post(post_id):

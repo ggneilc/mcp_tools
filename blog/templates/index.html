@@ -10,11 +10,9 @@
 {% block content %}
 
 {% for post in posts %}
-    <div class="post">
-        <a href="/posts/{{post.id}}">
-            <h2>{{ post.title }}</h2>
-        </a>
-    </div>
+    <a class="post" href="/posts/{{post.id}}">
+        <h2>{{ post.title }}</h2>
+    </a>
 {% endfor %}
 
 {% endblock %}

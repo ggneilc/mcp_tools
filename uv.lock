@@ -1711,6 +1711,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "requests" },
     { name = "sentence-transformers" },
+    { name = "typer" },
     { name = "unstructured" },
     { name = "uvicorn" },
 ]
@@ -1734,6 +1735,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.11.7" },
     { name = "requests", specifier = ">=2.32.4" },
     { name = "sentence-transformers", specifier = ">=5.0.0" },
+    { name = "typer", extras = ["all"], specifier = ">=0.16.0" },
     { name = "unstructured", specifier = ">=0.18.11" },
     { name = "uvicorn", specifier = ">=0.35.0" },
 ]
